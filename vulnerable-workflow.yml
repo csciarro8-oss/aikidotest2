@@ -1,0 +1,21 @@
+name: Vulnerable workflow (demo)
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      # Script injection: untrusted issue title interpolated into a shell command
+      - name: Echo title
+        run: echo "New issue: ${{ github.event.issue.title }}"
+
+      # Dangerous: pull_request_target + checkout of untrusted PR code
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      # Unpinned third-party action (should be pinned to a commit SHA)
+      - uses: some-org/some-action@main
